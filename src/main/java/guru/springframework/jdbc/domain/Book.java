@@ -1,10 +1,7 @@
 package guru.springframework.jdbc.domain;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Setter
@@ -22,5 +19,6 @@ public class Book {
     private String title;
     private String isbn;
     private String publisher;
-    private Long authorId;
+    @OneToOne
+    private Author author;
 }
