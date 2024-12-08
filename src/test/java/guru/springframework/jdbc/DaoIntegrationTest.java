@@ -1,5 +1,6 @@
 package guru.springframework.jdbc;
 
+import guru.springframework.jdbc.config.AppConfig;
 import guru.springframework.jdbc.dao.AuthorDao;
 import guru.springframework.jdbc.dao.AuthorDaoImpl;
 import guru.springframework.jdbc.domain.Author;
@@ -19,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 @ActiveProfiles("local")
 @DataJpaTest
-@Import(AuthorDaoImpl.class)
+@Import({AuthorDaoImpl.class, AppConfig.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class DaoIntegrationTest {
     @Autowired
