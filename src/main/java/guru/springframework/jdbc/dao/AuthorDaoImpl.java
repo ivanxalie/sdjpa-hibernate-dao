@@ -4,15 +4,9 @@ import guru.springframework.jdbc.domain.Author;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaDelete;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Criteria;
-import org.hibernate.query.criteria.internal.CriteriaBuilderImpl;
-import org.hibernate.query.criteria.internal.CriteriaDeleteImpl;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 import static guru.springframework.jdbc.config.AppConfig.ENTITY_MANAGER_NAME;
 
@@ -30,8 +24,9 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public Author findAuthorByName(String firstName, String lastName) {
-        String jpql = "select a from Author a where a.firstName = :firstName and a.lastName = :lastName";
-        TypedQuery<Author> query = manager().createQuery(jpql, Author.class);
+        TypedQuery<Author> query = manager().createQuery(
+                "select a from Author a where a.firstName = :firstName " +
+                        "and a.lastName = :lastName", Author.class);
         query.setParameter("firstName", firstName);
         query.setParameter("lastName", lastName);
         return query.getSingleResult();
@@ -40,7 +35,6 @@ public class AuthorDaoImpl implements AuthorDao {
     @Override
     public Author saveNewAuthor(Author author) {
         EntityManager manager = manager();
-        author = manager.merge(author);
         EntityTransaction transaction = manager.getTransaction();
         transaction.begin();
         manager.persist(author);
@@ -50,7 +44,12 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public Author updateAuthor(Author author) {
-        return saveNewAuthor(author);
+        EntityManager manager = manager();
+        EntityTransaction transaction = manager.getTransaction();
+        transaction.begin();
+        manager.merge(author);
+        transaction.commit();
+        return author;
     }
 
     @Override
