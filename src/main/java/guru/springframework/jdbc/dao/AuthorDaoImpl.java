@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Component;
 
+import java.util.function.Function;
+
 import static guru.springframework.jdbc.config.AppConfig.ENTITY_MANAGER_NAME;
 
 /**
@@ -19,46 +21,61 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public Author getById(Long id) {
-        return manager().find(Author.class, id);
+        return execute(manager -> manager.find(Author.class, id));
+    }
+
+    private <TYPE> TYPE execute(Function<EntityManager, TYPE> function) {
+        EntityManager manager = manager();
+        try {
+            return function.apply(manager);
+        } finally {
+            manager.close();
+        }
     }
 
     @Override
     public Author findAuthorByName(String firstName, String lastName) {
-        TypedQuery<Author> query = manager().createQuery(
-                "select a from Author a where a.firstName = :firstName " +
-                        "and a.lastName = :lastName", Author.class);
-        query.setParameter("firstName", firstName);
-        query.setParameter("lastName", lastName);
-        return query.getSingleResult();
+        return execute(manager -> {
+            TypedQuery<Author> query = manager.createQuery(
+                    "select a from Author a where a.firstName = :firstName " +
+                            "and a.lastName = :lastName", Author.class);
+            query.setParameter("firstName", firstName);
+            query.setParameter("lastName", lastName);
+            return query.getSingleResult();
+        });
     }
 
     @Override
     public Author saveNewAuthor(Author author) {
-        EntityManager manager = manager();
-        EntityTransaction transaction = manager.getTransaction();
-        transaction.begin();
-        manager.persist(author);
-        transaction.commit();
-        return author;
+        return execute(manager -> {
+            EntityTransaction transaction = manager.getTransaction();
+            transaction.begin();
+            manager.persist(author);
+            transaction.commit();
+            return author;
+        });
     }
 
     @Override
     public Author updateAuthor(Author author) {
-        EntityManager manager = manager();
-        EntityTransaction transaction = manager.getTransaction();
-        transaction.begin();
-        manager.merge(author);
-        transaction.commit();
-        return author;
+        return execute(manager -> {
+            EntityTransaction transaction = manager.getTransaction();
+            transaction.begin();
+            manager.merge(author);
+            transaction.commit();
+            return author;
+        });
     }
 
     @Override
     public void deleteAuthorById(Long id) {
-        EntityManager manager = manager();
-        EntityTransaction transaction = manager.getTransaction();
-        transaction.begin();
-        manager.remove(manager.find(Author.class, id));
-        transaction.commit();
+        execute(manager -> {
+            EntityTransaction transaction = manager.getTransaction();
+            transaction.begin();
+            manager.remove(manager.find(Author.class, id));
+            transaction.commit();
+            return Void.class;
+        });
     }
 
     @Lookup(ENTITY_MANAGER_NAME)
