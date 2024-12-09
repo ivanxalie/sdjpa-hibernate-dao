@@ -7,6 +7,7 @@ import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.function.Function;
 
 import static guru.springframework.jdbc.config.AppConfig.ENTITY_MANAGER_NAME;
@@ -78,6 +79,17 @@ public class AuthorDaoImpl implements AuthorDao {
             manager.remove(manager.find(Author.class, id));
             transaction.commit();
             return Void.class;
+        });
+    }
+
+    @Override
+    public List<Author> authorsByLastNameLike(String lastName) {
+        return execute(entityManager -> {
+            TypedQuery<Author> query = entityManager.createQuery(
+                    "select a from Author a where a.lastName like :lastName"
+                    , Author.class);
+            query.setParameter("lastName", lastName + "%");
+            return query.getResultList();
         });
     }
 }
