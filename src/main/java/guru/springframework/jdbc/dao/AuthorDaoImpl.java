@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.function.Function;
 
 import static guru.springframework.jdbc.config.AppConfig.ENTITY_MANAGER_NAME;
+import static guru.springframework.jdbc.domain.Author.FIND_ALL;
+import static guru.springframework.jdbc.domain.Author.FIND_BY_NAME;
 
 /**
  * Created by jt on 8/28/21.
@@ -40,9 +42,8 @@ public class AuthorDaoImpl implements AuthorDao {
     @Override
     public Author findAuthorByName(String firstName, String lastName) {
         return execute(manager -> {
-            TypedQuery<Author> query = manager.createQuery(
-                    "select a from Author a where a.firstName = :firstName " +
-                            "and a.lastName = :lastName", Author.class);
+            TypedQuery<Author> query = manager.createNamedQuery(
+                    FIND_BY_NAME, Author.class);
             query.setParameter("firstName", firstName);
             query.setParameter("lastName", lastName);
             return query.getSingleResult();
@@ -91,5 +92,14 @@ public class AuthorDaoImpl implements AuthorDao {
             query.setParameter("lastName", lastName + "%");
             return query.getResultList();
         });
+    }
+
+    @Override
+    public List<Author> findAll() {
+        return execute(entityManager ->
+                entityManager
+                        .createNamedQuery(FIND_ALL, Author.class)
+                        .getResultList()
+        );
     }
 }
