@@ -125,6 +125,13 @@ public class DaoIntegrationTest {
     }
 
     @Test
+    void testGetAuthorByNameCriteria() {
+        Author author = authorDao.findAuthorByNameCriteria("Craig", "Walls");
+
+        assertThat(author).isNotNull();
+    }
+
+    @Test
     void testDeleteAuthor() {
         Author author = new Author();
         author.setFirstName("john");
