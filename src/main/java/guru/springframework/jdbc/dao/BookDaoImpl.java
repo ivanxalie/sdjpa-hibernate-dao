@@ -1,9 +1,11 @@
 package guru.springframework.jdbc.dao;
 
+import guru.springframework.jdbc.domain.Author;
 import guru.springframework.jdbc.domain.Book;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.*;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Component;
 
@@ -85,6 +87,26 @@ public class BookDaoImpl implements BookDao {
             TypedQuery<Book> query = manager.createNamedQuery(FIND_BY_TITLE, Book.class);
             query.setParameter("title", title);
             return query.getSingleResult();
+        });
+    }
+
+    @Override
+    public Book findBookByTitleCriteria(String title) {
+        return execute(manager -> {
+            CriteriaBuilder criteriaBuilder = manager.getCriteriaBuilder();
+            CriteriaQuery<Book> query = criteriaBuilder.createQuery(Book.class);
+
+            Root<Book> root = query.from(Book.class);
+            ParameterExpression<String> titleParam = criteriaBuilder.parameter(String.class);
+
+            Predicate titlePredicate = criteriaBuilder.equal(root.get("title"), titleParam);
+
+            query.select(root).where(titlePredicate);
+
+            TypedQuery<Book> typedQuery = manager.createQuery(query);
+            typedQuery.setParameter(titleParam, title);
+
+            return typedQuery.getSingleResult();
         });
     }
 
