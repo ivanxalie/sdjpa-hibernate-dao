@@ -7,9 +7,11 @@ import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.function.Function;
 
 import static guru.springframework.jdbc.config.AppConfig.ENTITY_MANAGER_NAME;
+import static guru.springframework.jdbc.domain.Book.FIND_BY_TITLE;
 
 @Component
 public class BookDaoImpl implements BookDao {
@@ -80,11 +82,18 @@ public class BookDaoImpl implements BookDao {
     @Override
     public Book findBookByTitle(String title) {
         return execute(manager -> {
-            TypedQuery<Book> query = manager.createQuery(
-                    "select b from Book b where b.title = :title"
-                    , Book.class);
+            TypedQuery<Book> query = manager.createNamedQuery(FIND_BY_TITLE, Book.class);
             query.setParameter("title", title);
             return query.getSingleResult();
         });
+    }
+
+    @Override
+    public List<Book> findAll() {
+        return execute(entityManager ->
+                entityManager
+                        .createNamedQuery(Book.FIND_ALL, Book.class)
+                        .getResultList()
+        );
     }
 }

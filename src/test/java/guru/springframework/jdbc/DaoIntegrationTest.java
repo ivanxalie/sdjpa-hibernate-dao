@@ -88,7 +88,7 @@ public class DaoIntegrationTest {
     }
 
     @Test
-    void testGetBookByName() {
+    void testGetBookByTitle() {
         Book book = bookDao.findBookByTitle("Clean Code");
 
         assertThat(book).isNotNull();
@@ -114,6 +114,14 @@ public class DaoIntegrationTest {
         assertThat(fetched).isNotNull();
 
         bookDao.deleteBookById(saved.getId());
+    }
+
+    @Test
+    void testFindAllBooks() {
+        List<Book> books = bookDao.findAll();
+
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isGreaterThan(0);
     }
 
     @Test
