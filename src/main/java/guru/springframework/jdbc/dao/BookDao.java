@@ -20,4 +20,6 @@ public interface BookDao {
     Book findBookByTitleCriteria(String title);
 
     List<Book> findAll();
+
+    Book findBookByTitleNative(String title);
 }
