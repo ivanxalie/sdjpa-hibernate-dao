@@ -122,8 +122,9 @@ public class BookDaoImpl implements BookDao {
     @Override
     public Book findBookByTitleNative(String title) {
         return (Book) execute(manager -> {
-            Query query = manager.createNativeQuery("select * from book where title = ?", Book.class);
-            query.setParameter(1, title);
+            Query query = manager.createNativeQuery("select * from book where title = :title",
+                    Book.class);
+            query.setParameter("title", title);
             return query.getSingleResult();
         });
     }
