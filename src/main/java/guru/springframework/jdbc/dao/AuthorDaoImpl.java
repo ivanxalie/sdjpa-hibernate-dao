@@ -3,9 +3,9 @@ package guru.springframework.jdbc.dao;
 import guru.springframework.jdbc.domain.Author;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
-import liquibase.pro.packaged.P;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Component;
 
@@ -71,6 +71,17 @@ public class AuthorDaoImpl implements AuthorDao {
             typedQuery.setParameter(lastNameParam, lastName);
 
             return typedQuery.getSingleResult();
+        });
+    }
+
+    @Override
+    public Author findAuthorByNameNative(String firstName, String lastName) {
+        return (Author) execute(manager -> {
+            Query query = manager.createNativeQuery(
+                    "select * from author where first_name = ? and last_name = ?", Author.class);
+            query.setParameter(1, firstName);
+            query.setParameter(2, lastName);
+            return query.getSingleResult();
         });
     }
 
