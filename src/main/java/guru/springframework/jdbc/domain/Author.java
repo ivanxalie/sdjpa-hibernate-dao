@@ -12,7 +12,6 @@ import static guru.springframework.jdbc.domain.Author.FIND_BY_NAME;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 @NamedQueries({
         @NamedQuery(name = FIND_ALL, query = "from Author"),
         @NamedQuery(name = FIND_BY_NAME, query = "from Author a where a.firstName = :firstName and a.lastName = :lastName")
